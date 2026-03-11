@@ -1,0 +1,7 @@
+<section class="manager-layout">
+  @if (!isSuccess()) {
+    <app-registration-form (formSubmitted)="onRegister($event)" />
+  } @else {
+    <app-success-message (reset)="onReset()" />
+  }
+</section>

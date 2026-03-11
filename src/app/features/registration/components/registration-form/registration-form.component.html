@@ -1,0 +1,150 @@
+<div class="form-card shadow-lg p-4 rounded-4 bg-white">
+  <header class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h2 class="h5 mb-0 text-primary fw-bold">Developer Registration</h2>
+      <span class="badge rounded-pill bg-light text-primary border border-primary">
+        {{ completenessSignal() }}% Complete
+      </span>
+    </div>
+    <div class="progress" style="height: 6px;">
+      <div
+        class="progress-bar progress-bar-striped progress-bar-animated bg-primary"
+        role="progressbar"
+        [style.width.%]="completenessSignal()"
+        [attr.aria-valuenow]="completenessSignal()"
+        [attr.aria-valuemin]="0"
+        [attr.aria-valuemax]="100">
+      </div>
+    </div>
+  </header>
+
+  <form [formGroup]="registrationForm" (ngSubmit)="submit()" novalidate>
+
+    <div class="mb-3">
+      <label for="fullName" class="form-label small fw-semibold">Full Name *</label>
+      <input
+        id="fullName"
+        type="text"
+        class="form-control"
+        formControlName="fullName"
+        [class.is-invalid]="fullNameControl.invalid && fullNameControl.touched"
+        [class.is-valid]="fullNameControl.valid && fullNameControl.touched"
+        placeholder="e.g. John Doe">
+      @if (fullNameControl.hasError('required') && fullNameControl.touched) {
+        <div class="invalid-feedback animate-fade-in">Full name is required.</div>
+      }
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6 mb-3">
+        <label for="email" class="form-label small fw-semibold">Email Address</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          [class.is-invalid]="registrationForm.get('email')?.invalid && registrationForm.get('email')?.touched"
+          [class.is-valid]="emailControl.valid && emailControl.touched && !registrationForm.errors?.['requireAtLeastOneContact']"
+          placeholder="name@example.com">
+        @if (emailControl.hasError('pattern') && emailControl.touched) {
+          <div class="invalid-feedback animate-fade-in">Please enter a valid email address.</div>
+        }
+      </div>
+      <div class="col-md-6 mb-3">
+        <label for="phone" class="form-label small fw-semibold">Phone Number</label>
+        <input
+          id="phone"
+          type="tel"
+          class="form-control"
+          formControlName="phone"
+          [class.is-invalid]="registrationForm.get('phone')?.invalid && registrationForm.get('phone')?.touched"
+          [class.is-valid]="phoneControl.valid && phoneControl.touched && !registrationForm.errors?.['requireAtLeastOneContact']"
+          placeholder="+123456789">
+        @if (phoneControl.hasError('pattern') && phoneControl.touched) {
+          <div class="invalid-feedback animate-fade-in">Please enter a valid phone number.</div>
+        }
+      </div>
+    </div>
+
+    @if (registrationForm.errors?.['requireAtLeastOneContact'] && (phoneControl.touched || emailControl.touched)) {
+      <div class="alert alert-danger py-2 small animate-fade-in border-0 bg-danger-subtle">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        Please provide either an email or a phone number.
+      </div>
+    }
+
+    <div class="mb-3">
+      <label for="specialization" class="form-label small fw-semibold">Specialization *</label>
+      <select
+        id="specialization"
+        class="form-select"
+        [class.is-invalid]="specializationControl.invalid && specializationControl.touched"
+        [class.is-valid]="specializationControl.valid && specializationControl.touched"
+        formControlName="specialization">
+        <option [ngValue]="null" disabled>Choose your path...</option>
+        @for (spec of SpecializationOptions; track spec) {
+          <option [value]="spec">{{ spec }}</option>
+        }
+      </select>
+      @if (specializationControl.hasError('required') && specializationControl.touched) {
+        <div class="invalid-feedback d-block animate-fade-in">Please select a specialization.</div>
+      }
+    </div>
+
+    @if (isFrontendSelected()) {
+      <div class="mb-3 animate-slide-down">
+        <label for="favFramework" class="form-label small fw-semibold">Favorite Framework</label>
+        <input
+          id="favFramework"
+          type="text"
+          class="form-control"
+          formControlName="favoriteFramework"
+          placeholder="Angular, React, Vue...">
+      </div>
+    }
+
+    <hr class="my-4">
+
+    <div class="skills-section mb-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <label class="form-label small fw-semibold mb-0">Technical Skills</label>
+        <button type="button" class="btn btn-sm btn-outline-secondary" (click)="addSkill()">
+          <span class="me-1">+</span> Add Skill
+        </button>
+      </div>
+
+      <div formArrayName="skills">
+        @for (skill of skillsControl.controls; track $index) {
+          <div class="input-group mb-2 animate-fade-in">
+            <input
+              type="text"
+              class="form-control"
+              [class.is-invalid]="skill.invalid && skill.touched"
+              [class.is-valid]="skill.valid && skill.touched"
+              [formControlName]="$index"
+              placeholder="e.g. TypeScript">
+            <button
+              class="btn btn-outline-danger"
+              type="button"
+              (click)="removeSkill($index)"
+              aria-label="Remove skill">
+              &times;
+            </button>
+          </div>
+          @if (skill.invalid && skill.touched) {
+            <div class="text-danger small mb-2 animate-fade-in">Skill cannot be empty.</div>
+          }
+        } @empty {
+          <p class="text-muted small italic">No skills added yet. Add at least one to increase profile score.</p>
+        }
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      class="btn btn-primary w-100 py-2 fw-bold shadow-sm"
+      [disabled]="registrationForm.invalid">
+      Complete Registration
+    </button>
+  </form>
+</div>
